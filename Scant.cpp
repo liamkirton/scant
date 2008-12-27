@@ -2124,7 +2124,21 @@ void PrintUsage()
 		int deviceEnumCount = 0;
 		while(pDeviceEnum != NULL)
 		{
-			std::cout << "  " << ++deviceEnumCount << ". " << pDeviceEnum->description << std::endl;
+			u_int ip = 0;
+			for(pcap_addr *a = pDeviceEnum->addresses; a != NULL; a = a->next)
+			{
+				if(a->addr->sa_family == AF_INET)
+				{
+					ip = reinterpret_cast<sockaddr_in *>(a->addr)->sin_addr.S_un.S_addr;
+					break;
+				}
+			}
+
+			std::cout << "  " << ++deviceEnumCount << ". "
+					  << ((ip & 0x000000FF)) << "."
+					  << ((ip & 0x0000FF00) >> 8) << "."
+					  << ((ip & 0x00FF0000) >> 16) << "."
+					  << ((ip & 0xFF000000) >> 24) << " " << pDeviceEnum->description << std::endl;
 			pDeviceEnum = pDeviceEnum->next;
 		}
 
